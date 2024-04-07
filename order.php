@@ -5,7 +5,7 @@
 
 
 	/*
-	 * TO-DO: Define a function that retrives ALL customer and order info from the database based on values entered into form.
+	 * TO-DO: Define a function that retrieves ALL customer and order info from the database based on values entered into form.
 	 		  - Write SQL query to retrieve ALL customer and order info based on form values
 	 		  - Execute the SQL query using the pdo function and fetch the result
 	 		  - Return the order info
@@ -21,12 +21,25 @@
 		// Retrieve the value of the 'orderNum' field from the POST data
 		$orderNum = $_POST['orderNum'];
 
-
-		/*
-		 * TO-DO: Retrieve info about order from the db using provided PDO connection
-		 */
+		// Write SQL query to retrieve order details based on email and order number
+		$sql = "SELECT o.*, c.* FROM orders o
+			INNER JOIN customer c ON o.custnum = c.custnum
+			WHERE c.email = :email AND o.ordernum = :orderNum";
 		
+		// Prepare the SQL statement
+		$stmt = $pdo->prepare($sql);
+		
+		// Bind the parameters
+		$stmt->bindParam(':email', $email);
+		$stmt->bindParam(':orderNum', $orderNum);
+		
+		// Execute the SQL statement
+		$stmt->execute();
+		
+		// Fetch the result
+		$orderInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 	}
+	
 // Closing PHP tag  ?> 
 
 <!DOCTYPE>
@@ -85,28 +98,30 @@
 					</form>
 				</div>
 				
-				<!-- 
-				  -- TO-DO: Check if variable holding order is not empty. Make sure to replace null with your variable!
-				  -->
-				
-				<?php if (!empty(null)): ?>
+				<?php if (!empty($orderInfo)): ?>
 					<div class="order-details">
-
-						<!-- 
-				  		  -- TO DO: Fill in ALL the placeholders for this order from the db
-  						  -->
 						<h1>Order Details</h1>
-						<p><strong>Name: </strong> <?= '' ?></p>
-				        	<p><strong>Username: </strong> <?= '' ?></p>
-				        	<p><strong>Order Number: </strong> <?= '' ?></p>
-				        	<p><strong>Quantity: </strong> <?= '' ?></p>
-				        	<p><strong>Date Ordered: </strong> <?= '' ?></p>
-				        	<p><strong>Delivery Date: </strong> <?= '' ?></p>
-				      
+						<p><strong>Name: </strong> <?= $orderInfo['cname'] ?></p>
+						<p><strong>Username: </strong> <?= $orderInfo['username'] ?></p>
+						<p><strong>Order Number: </strong> <?= $orderInfo['ordernum'] ?></p>
+						<p><strong>Quantity: </strong> <?= $orderInfo['quantity'] ?></p>
+						<p><strong>Date Ordered: </strong> <?= $orderInfo['date_ordered'] ?></p>
+						<p><strong>Delivery Date: </strong> <?= $orderInfo['date_deliv'] ?></p>
 					</div>
 				<?php endif; ?>
 
-			</div>
+				<?php if (!empty(null)): ?>
+					<div class="order-details">
+						<h1>Order Details</h1>
+						<p><strong>Name: </strong> <?= $orderInfo['cname'] ?></p>
+						<p><strong>Username: </strong> <?= $orderInfo['username'] ?></p>
+						<p><strong>Order Number: </strong> <?= $orderInfo['ordernum'] ?></p>
+						<p><strong>Quantity: </strong> <?= $orderInfo['quantity'] ?></p>
+						<p><strong>Date Ordered: </strong> <?= $orderInfo['date_ordered'] ?></p>
+						<p><strong>Delivery Date: </strong> <?= $orderInfo['date_deliv'] ?></p>
+					</div>
+				<?php endif; ?>
+				</div>
 
 		</main>
 
